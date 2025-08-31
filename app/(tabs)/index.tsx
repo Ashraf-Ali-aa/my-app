@@ -1,12 +1,35 @@
 import { Image } from 'expo-image';
+import { useEffect, useState } from 'react';
 import { Platform, StyleSheet } from 'react-native';
 
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { getPetById } from '@/services/client';
 
 export default function HomeScreen() {
+  const [petName, setPetName] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>('');
+
+  useEffect(() => {
+    const fetchPet = async () => {
+      try {
+        setLoading(true);
+        const pet = await getPetById(1);
+        setPetName(pet.name || 'Unknown Pet');
+      } catch (err) {
+        setError('Failed to load pet data');
+        console.error('Error fetching pet:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPet();
+  }, []);
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -19,6 +42,16 @@ export default function HomeScreen() {
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">Welcome!</ThemedText>
         <HelloWave />
+      </ThemedView>
+      <ThemedView style={styles.stepContainer}>
+        <ThemedText type="subtitle">Pet Information</ThemedText>
+        {loading ? (
+          <ThemedText>Loading pet data...</ThemedText>
+        ) : error ? (
+          <ThemedText style={styles.errorText}>{error}</ThemedText>
+        ) : (
+          <ThemedText>Pet Name: <ThemedText type="defaultSemiBold">{petName}</ThemedText></ThemedText>
+        )}
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle">Step 1: Try it</ThemedText>
@@ -71,5 +104,8 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     position: 'absolute',
+  },
+  errorText: {
+    color: 'red',
   },
 });
