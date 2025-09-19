@@ -26,4 +26,23 @@ export const getPetById = async (petId: number, apiKey: string = 'special-key') 
   return response.json()
 }
 
+// Function to get pets by status (avoids 404s on demo)
+export const getAvailablePets = async (
+  status: ('available' | 'pending' | 'sold')[] = ['available'],
+  accessToken: string = 'demo'
+) => {
+  const response = await client['/pet/findByStatus'].get({
+    query: { status },
+    headers: {
+      Authorization: `Bearer ${accessToken}`
+    }
+  })
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch pets: ${response.status} ${response.statusText}`)
+  }
+
+  return response.json()
+}
+
 export default client

@@ -6,7 +6,7 @@ import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { getPetById } from '@/services/client';
+import { getAvailablePets } from '@/services/client';
 
 export default function HomeScreen() {
   const [petName, setPetName] = useState<string>('');
@@ -17,8 +17,9 @@ export default function HomeScreen() {
     const fetchPet = async () => {
       try {
         setLoading(true);
-        const pet = await getPetById(1);
-        setPetName(pet.name || 'Unknown Pet');
+        const pets = await getAvailablePets(['available']);
+        const first = Array.isArray(pets) && pets.length > 0 ? pets[0] : null;
+        setPetName(first?.name || 'Unknown Pet');
       } catch (err) {
         setError('Failed to load pet data');
         console.error('Error fetching pet:', err);
